@@ -59,7 +59,7 @@ def process_drive(useremail):
         email_addresses = [user_email, 'uufkorea@gmail.com']
         for email in email_addresses:
           user_permission = {
-              'type': 'user',
+              'type': 'anyone',
               'role': 'writer',  # 'reader', 'commenter', 'writer', 또는 'owner' 중 선택
               'emailAddress': email
           }
@@ -73,8 +73,27 @@ def process_drive(useremail):
           except HttpError as error:
               print(f"An error occurred: {error}")
 
+    def share_folder_publicly(folder_id):
+        """ 폴더에 모든 사용자에게 권한 부여 함수 """
+        public_permission = {
+            'type': 'anyone',
+            'role': 'writer'  # 'reader', 'commenter', 'writer', 또는 'owner' 중 선택
+        }
+        try:
+            service.permissions().create(
+                fileId=folder_id,
+                body=public_permission,
+                fields='id'
+            ).execute()
+            print("Folder shared with everyone.")
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+
     # useremail='ljj90703001@gmail.com'
     timeNow=datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     folder_id = create_folder(useremail+timeNow)
-    share_folder(folder_id, useremail)  # 사용자 이메일 주소
-    return useremail+timeNow
+
+    # share_folder(folder_id, useremail)  # 사용자 이메일 주소
+    share_folder_publicly(folder_id)
+    return 'https://drive.google.com/drive/folders/{}'.format(folder_id)
+
